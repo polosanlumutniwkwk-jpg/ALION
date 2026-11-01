@@ -23,11 +23,19 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Setup Gradle Environment
+      uses: gradle/actions/setup-gradle@v4
+
     - name: Build Debug APK
       run: |
-        TARGET_DIR=$(dirname $(find . -name "gradlew" | head -n 1))
-        echo "Lokasi gradlew: $TARGET_DIR"
-        cd "$TARGET_DIR"
+        PROJECT_DIR=$(dirname $(find . -name "settings.gradle.kts" | head -n 1))
+        cd "$PROJECT_DIR"
+        
+        if [ ! -f "gradlew" ]; then
+          echo "Membuat gradlew otomatis..."
+          gradle wrapper
+        fi
+        
         chmod +x gradlew
         ./gradlew assembleDebug --no-daemon
 
