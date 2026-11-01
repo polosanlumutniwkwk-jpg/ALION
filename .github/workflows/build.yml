@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Extract Project ZIP
-      run: unzip -o *.zip
+      run: unzip -o "*.zip"
 
     - name: Set up JDK 17
       uses: actions/setup-java@v5
@@ -22,17 +22,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Fix gradlew script
-      run: |
-        find . -name gradlew -exec sed -i 's/DEFAULT_JVM_OPTS=.*/DEFAULT_JVM_OPTS=""/' {} \;
-        find . -name gradlew -exec chmod +x {} \;
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Build Debug APK
       run: |
-        GRADLEW=$(find . -name gradlew | head -n 1)
-        DIR=$(dirname "$GRADLEW")
-        cd "$DIR"
-        ./gradlew assembleDebug --no-daemon
+        SETTINGS_PATH=$(find . -name "settings.gradle.kts" -o -name "settings.gradle" | head -n 1)
+        PROJECT_DIR=$(dirname "$SETTINGS_PATH")
+        cd "$PROJECT_DIR"
+        gradle assembleDebug --no-daemon
 
     - name: Upload Debug APK Artifact
       uses: actions/upload-artifact@v4
